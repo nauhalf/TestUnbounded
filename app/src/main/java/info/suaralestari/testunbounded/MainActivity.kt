@@ -15,12 +15,13 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,10 +32,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import info.suaralestari.testunbounded.ui.theme.TestUnboundedTheme
 
 class MainActivity : ComponentActivity() {
@@ -77,7 +81,7 @@ fun Greeting(modifier: Modifier = Modifier) {
                 }
             },
             contentPadding = PaddingValues(18.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         )
 
@@ -90,27 +94,39 @@ fun ItemGrid(
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
+    var parentSize by remember {
+        mutableStateOf<IntSize>(IntSize(0, 0))
+    }
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(62.dp)
-            .border(border = BorderStroke(1.dp, Color.Green))
+            .aspectRatio(54 / 62f)
+            .border(BorderStroke(1.dp, Color.Blue))
+            .onSizeChanged {
+                parentSize = it
+            }
     ) {
         Box(
             modifier = Modifier
-                .wrapContentHeight(
-                    align = Alignment.Top,
+                .wrapContentSize(
+                    align = Alignment.Center,
                     unbounded = true
                 )
+                .align(Alignment.Center),
         ) {
             Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(62.dp)
+                modifier = Modifier
+                    .width(with(LocalDensity.current) {
+                        parentSize.width.toDp()
+                    })
+                    .height(with(LocalDensity.current) {
+                        parentSize.height.toDp()
+                    })
                     .background(Color.Red.copy(alpha = 0.5f))
                     .clickable {
                         onClick.invoke()
                     }
+                    .align(Alignment.Center)
             ) {
 
             }
@@ -118,8 +134,10 @@ fun ItemGrid(
             if (isSelected) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(86.dp)
+                        .width(with(LocalDensity.current) {
+                            (parentSize.width * 1.1f).toDp()
+                        })
+                        .aspectRatio(68 / 86f)
                         .background(Color.Green.copy(alpha = 0.5f))
                 )
             }
